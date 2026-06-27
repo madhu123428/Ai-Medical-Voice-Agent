@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   try {
     const UserInput="AI Doctor Agent Info: "+JSON.stringify(sessionDetail)+", Conversation"+JSON.stringify(messages);
     const completion = await openai.chat.completions.create({
-      model: "kwaipilot/kat-coder-pro:free",
+      model: "gemini-2.5-flash",
       messages: [
         { role: "system",content:REPORT_GEN_PROMPT  },
         {
