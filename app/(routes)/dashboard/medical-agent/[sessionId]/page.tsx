@@ -48,29 +48,20 @@ function MedicalVoiceAgent() {
     const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY!);
     setVapiInstance(vapi);
 
-    // const VapiAgentConfig = {
-    //   name: "Medical Voice Agent",
-    //   firstMessage:
-    //     "Hello, I am your AI medical assistant. How can I help you today?",
-    //   transcriber: {
-    //     provider: "assembly-ai",
-    //     language: "en",
-    //   },
-    //   voice: {
-    //     provider: "elevenlabs",
-    //     voiceId: sessionDetail?.selectedDoctor.voiceId,
-    //   },
-    //   model: {
-    //     provider: "openai",
-    //     model: "gpt-4o-mini",
-    //     systemPrompt:
-    //       sessionDetail?.selectedDoctor.agentPrompt ||
-    //       "You are a helpful medical AI assistant.",
-    //   },
-    // };
-    //@ts-ignore
+    const doctorPrompt = sessionDetail?.selectedDoctor?.agentPrompt || "You are a helpful medical AI assistant.";
+    const medicalConstraint = 
+      "\n\nCRITICAL DIRECTIVE: You are a specialized medical AI assistant. You must ONLY answer questions, discuss topics, or provide advice related to your specific medical specialty. " +
+      "If the user asks about ANY unrelated, general, or non-medical topics (such as general knowledge, science, space, history, mathematics, unrelated technology, sports, entertainment, or questions like 'how many moons does Jupiter have'), you must politely refuse to answer. " +
+      "State clearly and concisely that you are a specialized medical assistant and can only help with questions related to your medical domain. Keep your responses short, professional, and conversational.";
 
-    vapi.start(process.env.NEXT_PUBLIC_VAPI_VOICE_ASSISTANT_ID);
+    const assistantOverrides = {
+      model: {
+        provider: "openai" as const,
+        model: "gpt-4o-mini" as const,
+        systemPrompt: `${doctorPrompt}${medicalConstraint}`,
+      },
+    };
+    vapi.start(process.env.NEXT_PUBLIC_VAPI_VOICE_ASSISTANT_ID!, assistantOverrides);
     vapi.on("call-start", () => {
       console.log("Call started");
       setCallStarted(true);
@@ -78,6 +69,14 @@ function MedicalVoiceAgent() {
     vapi.on("call-end", () => {
       setCallStarted(false);
       console.log("Call ended");
+    });
+    vapi.on("error", (error) => {
+      console.error("Vapi Error:", error);
+      toast.error(`Vapi Error: ${error.message || JSON.stringify(error)}`);
+    });
+    vapi.on("call-start-failed", (event) => {
+      console.error("Vapi Call Start Failed:", event);
+      toast.error(`Call Start Failed: ${event.error || JSON.stringify(event)}`);
     });
     vapi.on("message", (message) => {
       const { role, transcriptType, transcript } = message;
