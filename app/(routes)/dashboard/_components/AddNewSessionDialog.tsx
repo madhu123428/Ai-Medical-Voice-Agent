@@ -118,7 +118,7 @@ export default function AddNewSessionDialog() {
       <DialogTrigger asChild>
         <Button
           className="mt-3"
-          disabled={!paidUser && historyList?.length >= 1}
+          disabled={process.env.NODE_ENV !== "development" && !paidUser && historyList?.length >= 1}
         >
           + Book a Consultation
         </Button>
