@@ -61,7 +61,9 @@ function MedicalVoiceAgent() {
         systemPrompt: `${doctorPrompt}${medicalConstraint}`,
       },
     };
-    vapi.start(process.env.NEXT_PUBLIC_VAPI_VOICE_ASSISTANT_ID!, assistantOverrides);
+    //@ts-ignore
+
+    vapi.start(process.env.NEXT_PUBLIC_VAPI_VOICE_ASSISTANT_ID, assistantOverrides);
     vapi.on("call-start", () => {
       console.log("Call started");
       setCallStarted(true);
@@ -69,14 +71,6 @@ function MedicalVoiceAgent() {
     vapi.on("call-end", () => {
       setCallStarted(false);
       console.log("Call ended");
-    });
-    vapi.on("error", (error) => {
-      console.error("Vapi Error:", error);
-      toast.error(`Vapi Error: ${error.message || JSON.stringify(error)}`);
-    });
-    vapi.on("call-start-failed", (event) => {
-      console.error("Vapi Call Start Failed:", event);
-      toast.error(`Call Start Failed: ${event.error || JSON.stringify(event)}`);
     });
     vapi.on("message", (message) => {
       const { role, transcriptType, transcript } = message;

@@ -13,30 +13,13 @@ export async function POST(req: NextRequest) {
     });
 
     const rawresponse = completion.choices[0].message;
-    const rawContent = rawresponse?.content || "";
-    console.log("Raw LLM response content:", rawContent);
-
-    // Find boundaries for either JSON array ([]) or JSON object ({})
-    const jsonStart = Math.min(
-      rawContent.indexOf("[") === -1 ? Infinity : rawContent.indexOf("["),
-      rawContent.indexOf("{") === -1 ? Infinity : rawContent.indexOf("{")
-    );
-    const jsonEnd = Math.max(
-      rawContent.lastIndexOf("]"),
-      rawContent.lastIndexOf("}")
-    );
-
-    if (jsonStart === Infinity || jsonEnd === -1 || jsonStart > jsonEnd) {
-      throw new Error("Could not find any JSON block in LLM response");
-    }
-
-    const cleanJsonString = rawContent.substring(jsonStart, jsonEnd + 1);
-    const JSONResp = JSON.parse(cleanJsonString);
-
-    console.log("Suggested Doctors:", JSONResp);
+    //@ts-ignore
+    const Resp=rawresponse.content.trim().replace('```json','').replace('```','');
+    const JSONResp=JSON.parse(Resp);
+    console.log("Suggested Doctors:",JSONResp);
     return NextResponse.json({
-      suggestedDoctors: JSONResp
-    });
+  suggestedDoctors: JSONResp
+   });
   } catch (err) {
     return NextResponse.json(err);
   }

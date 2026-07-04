@@ -54,19 +54,9 @@ export async function POST(req: NextRequest) {
     });
 
     const rawresponse = completion.choices[0].message;
-    const rawContent = rawresponse?.content || "";
-    console.log("Raw LLM response content:", rawContent);
-
-    // Find the first '{' and the last '}' to extract the JSON block robustly
-    const jsonStart = rawContent.indexOf("{");
-    const jsonEnd = rawContent.lastIndexOf("}");
-
-    if (jsonStart === -1 || jsonEnd === -1) {
-      throw new Error("Could not find JSON block in LLM response");
-    }
-
-    const cleanJsonString = rawContent.substring(jsonStart, jsonEnd + 1);
-    const JSONResp = JSON.parse(cleanJsonString);
+    //@ts-ignore
+    const Resp=rawresponse.content.trim().replace('```json','').replace('```','');
+    const JSONResp=JSON.parse(Resp);
     //save to DB
     const result = await db
   .update(sessionChatTable)
