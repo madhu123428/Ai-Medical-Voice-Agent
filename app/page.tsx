@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Home() {
+  const { user } = useUser();
+
   return (
     <div className="relative  my-10 flex flex-col items-center justify-center">
       <Navbar />
@@ -52,7 +54,7 @@ export default function Home() {
           conversation.
         </motion.p>
 
-        <Link href={"/sign-in"}>
+        <Link href={user ? "/dashboard" : "/sign-in"}>
           <motion.div
             initial={{
               opacity: 0,

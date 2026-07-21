@@ -4,6 +4,14 @@ import { AIDoctorAgents } from "@/shared/list";
 
 export async function POST(req: NextRequest) {
   try {
+    if (!process.env.GEMINI_API_KEY) {
+      console.error("❌ Error: GEMINI_API_KEY is not configured in environment variables.");
+      return NextResponse.json(
+        { error: "GEMINI_API_KEY environment variable is missing in .env.local" },
+        { status: 500 }
+      );
+    }
+
     const { notes } = await req.json();
     
     const prompt = 
